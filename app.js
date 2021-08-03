@@ -62,6 +62,46 @@ router.post("/", (req, res) => {
   }
 });
 
+router.post("/html", (req, res) => {
+  var name = req.body.name;
+  var receiver = req.body.receiver;
+  var subject = req.body.subject;
+  var text = req.body.text;
+  var data = req.body.data;
+  var message = "";
+  try {
+    var transport = nodemailer.createTransport(
+      smtpTransport({
+        service: "Gmail",
+        auth: {
+          user: mailAccountUser,
+          pass: mailAccountPassword,
+        },
+      })
+    );
+
+    let mail = {
+      from: '"' + name + '" <' + mailAccountUser + ">",
+      to: receiver,
+      subject: subject,
+      text: text,
+      html: data,
+    };
+
+    transport.sendMail(mail, function (error, response) {
+      if (error) {
+        res.json({ status: -1, message: "Error Occured", error: error });
+      } else {
+        res.json({ status: 1, message: "Email Sent" });
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+
+
 app.use(cors());
 app.use(Parsbdy.json());
 app.use(`/api/email`, router);
